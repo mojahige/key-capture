@@ -6,12 +6,12 @@ import PressedKeyList from "@/components/PressedKeyList.vue";
 
 const CLEAR_TIME = 1500;
 const toEmptyReplaceList = ["numpad", "key"];
-const regex1 = new RegExp(toEmptyReplaceList.join("|"), "gi");
+const regex = new RegExp(toEmptyReplaceList.join("|"), "gi");
 
 const pressedKeys = ref<string[]>([]);
 const timerId = ref(0);
 
-const { init: keypressListenerInit, unlisten } = useKeypressListener();
+const { listen, unlisten } = useKeypressListener();
 
 function clear() {
   timerId.value = setTimeout(() => {
@@ -21,12 +21,12 @@ function clear() {
 
 function onKeyPressed(event: PressedEvent) {
   clearTimeout(timerId.value);
-  pressedKeys.value.push(event.payload.replace(regex1, ""));
+  pressedKeys.value.push(event.payload.replace(regex, ""));
   clear();
 }
 
 async function init() {
-  void keypressListenerInit(onKeyPressed);
+  void listen(onKeyPressed);
 }
 
 function dispose() {

@@ -7,7 +7,7 @@ const props = defineProps<{
 
 const sliderRef = useTemplateRef("slider");
 
-function scroll() {
+function showLatestKey() {
   if (sliderRef.value?.lastElementChild instanceof HTMLElement) {
     sliderRef.value.lastElementChild.scrollIntoView({
       inline: "end",
@@ -17,7 +17,7 @@ function scroll() {
 
 watch(() => props.pressedKeys.length, async () => {
   await nextTick();
-  scroll();
+  showLatestKey();
 });
 </script>
 
