@@ -1,0 +1,21 @@
+:root {
+  --background-color: white;
+  --font-color: #111;
+
+  color-scheme: light dark;
+}
+
+:root[style*="color-scheme: dark"] {
+  --background-color: #111;
+  --font-color: white;
+
+  a {
+    color: var(--font-color);
+  }
+}
+
+body {
+  min-height: 100dvh;
+  background-color: var(--background-color);
+  color: var(--font-color);
+}
