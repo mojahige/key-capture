@@ -2,30 +2,37 @@
 
 use device_query::{DeviceQuery, DeviceState};
 use std::sync::{Arc, Mutex};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
 use std::time::Duration;
 use tauri::AppHandle;
 use tauri::Emitter;
 
-static LISTENER_STARTED: AtomicBool = AtomicBool::new(false);
-
 #[tauri::command]
-fn keypress_listener(app_handle: AppHandle) {
-    if LISTENER_STARTED.load(Ordering::SeqCst) {
-        println!("Keypress listener is already running.");
-        return;
+fn start_keypress_listener(app_handle: AppHandle, state: tauri::State<Arc<Mutex<bool>>>) {
+    {
+        let mut is_running = state.lock().unwrap();
+        if *is_running {
+            println!("Keypress listener is already running.");
+            return;
+        }
+        *is_running = true;
     }
-
-    LISTENER_STARTED.store(true, Ordering::SeqCst);
 
     let device_state = DeviceState::new();
     let app_handle = Arc::new(app_handle);
+    let state = state.inner().clone();
 
     thread::spawn(move || {
         let last_keys = Arc::new(Mutex::new(vec![]));
 
         loop {
+            {
+                let is_running = state.lock().unwrap();
+                if !*is_running {
+                    break;
+                }
+            }
+
             let current_keys = device_state.get_keys();
             let mut last_keys_guard = last_keys.lock().unwrap();
 
@@ -37,10 +44,6 @@ fn keypress_listener(app_handle: AppHandle) {
             *last_keys_guard = current_keys;
 
             thread::sleep(Duration::from_millis(50));
-
-            if !LISTENER_STARTED.load(Ordering::SeqCst) {
-                break;
-            }
         }
 
         println!("Keypress listener stopped.");
@@ -48,15 +51,26 @@ fn keypress_listener(app_handle: AppHandle) {
 }
 
 #[tauri::command]
-fn stop_keypress_listener() {
-    LISTENER_STARTED.store(false, Ordering::SeqCst);
+fn stop_keypress_listener(state: tauri::State<Arc<Mutex<bool>>>) {
+    let mut is_running = state.lock().unwrap();
+    if *is_running {
+        *is_running = false;
+        println!("Keypress listener stopping...");
+    } else {
+        println!("Keypress listener is not running.");
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let listener_state = Arc::new(Mutex::new(false));
+
     tauri::Builder::default()
-        .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![keypress_listener, stop_keypress_listener])
+        .manage(listener_state.clone())
+        .invoke_handler(tauri::generate_handler![
+            start_keypress_listener,
+            stop_keypress_listener
+        ])
         .run(tauri::generate_context!())
-        .expect("error while running tauri application")
+        .expect("error while running tauri application");
 }

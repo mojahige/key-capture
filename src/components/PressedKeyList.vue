@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { watch, useTemplateRef, nextTick } from "vue";
-import PressedKeyItem from "./PressedKeyItem.vue";
+import PressedKeyListItem from "./PressedKeyListItem.vue";
 
 const props = defineProps<{
   pressedKeys: string[];
@@ -25,7 +25,7 @@ watch(() => props.pressedKeys.length, async () => {
 <template>
   <div ref="slider">
     <template  v-for="(pressedKey, index) in pressedKeys" :key="index">
-      <PressedKeyItem :pressed-key="pressedKey" />
+      <PressedKeyListItem :pressed-key="pressedKey" />
     </template>
   </div>
 </template>

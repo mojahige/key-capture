@@ -8,7 +8,7 @@ export type PressedHandler = (event: PressedEvent) => void;
 
 export function useKeypressListener() {
   async function listen(pressedHandler: PressedHandler) {
-    await invoke("keypress_listener");
+    await invoke("start_keypress_listener");
 
     return _listen("pressed", pressedHandler);
   }
