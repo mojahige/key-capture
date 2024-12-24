@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from "vue-router";
+import { RouterView } from "vue-router";
 import { useColorModeStore } from "./stores/color-mode";
 import { onUnmounted } from "vue";
+import AppMenu from "./components/AppMenu.vue";
 
 const colorModeStore = useColorModeStore();
 
@@ -14,11 +15,7 @@ onUnmounted(dispose);
 
 <template>
   <header>
-    <nav>
-      <RouterLink to="/">Home</RouterLink>
-      <RouterLink to="/setting">Setting</RouterLink>
-      <RouterLink to="/about">About</RouterLink>
-    </nav>
+    <AppMenu />
   </header>
 
   <main>
