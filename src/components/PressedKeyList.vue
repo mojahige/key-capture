@@ -24,7 +24,7 @@ watch(() => props.pressedKeys.length, async () => {
 
 <template>
   <div ref="slider">
-    <template  v-for="(pressedKey, index) in pressedKeys" :key="index">
+    <template v-for="(pressedKey, index) in pressedKeys" :key="index">
       <PressedKeyListItem :pressed-key="pressedKey" />
     </template>
   </div>
